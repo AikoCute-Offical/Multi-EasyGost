@@ -9,7 +9,7 @@ function checknew() {
   checknew=$(gost -V 2>&1 | awk '{print $2}')
   check_new_ver
   echo "Phiên bản gost của bạn là:""$checknew"""
-  echo -n 是否更新\(y/n\)\:
+  echo -n có cập nhật không\(y/n\)\:
   read checknewnum
   if test $checknewnum = "y"; then
     cp -r /etc/gost /tmp/
@@ -64,7 +64,7 @@ function check_new_ver() {
   ct_new_ver=$(wget --no-check-certificate -qO- -t2 -T3 https://api.github.com/repos/ginuerzh/gost/releases/latest | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g;s/v//g')
   if [[ -z ${ct_new_ver} ]]; then
     ct_new_ver="2.11.1"
-    echo -e "${Error} gost Không tải được phiên bản mới nhất, đang tải xuống v${ct_new_ver}版"
+    echo -e "${Error} gost Không tải được phiên bản mới nhất, đang tải xuống v ${ct_new_ver} Phiên bản"
   else
     echo -e "${Info} gost Phiên bản mới nhất là ${ct_new_ver}"
   fi
@@ -165,7 +165,7 @@ function read_protocol() {
   echo -e "Giải thích: Đối với lưu lượng được truyền qua mã hóa gost, tùy chọn này được sử dụng để giải mã và chuyển tiếp đến cổng dịch vụ proxy của máy cục bộ hoặc tới các máy từ xa khác"
   echo -e "      Nói chung được đặt trên các máy nước ngoài được sử dụng để nhận lưu lượng chuyển tuyến"
   echo -e "-----------------------------------"
-  echo -e "[4] Cài đặt proxy ss / vớ5 bằng một cú nhấp chuột"
+  echo -e "[4] Cài đặt proxy ss / socks5 bằng một cú nhấp chuột"
   echo -e "Mô tả: sử dụng giao thức proxy tích hợp của gost, nhẹ và dễ quản lý"
   echo -e "-----------------------------------"
   echo -e "[5] Nâng cao: Nhiều lần hạ cánh để cân bằng tải"
@@ -199,7 +199,7 @@ function read_s_port() {
     read -p "Vui lòng nhập mật khẩu ss: " flag_b
   elif [ "$flag_a" == "socks" ]; then
     echo -e "-----------------------------------"
-    read -p "Vui lòng nhập mật khẩu vớ: " flag_b
+    read -p "Vui lòng nhập mật khẩu socks: " flag_b
   else
     echo -e "------------------------------------------------------------------"
     echo -e "Bạn muốn chuyển tiếp lưu lượng nhận được trên máy này qua cổng nào?"
@@ -238,7 +238,7 @@ function read_d_ip() {
     fi
   elif [ "$flag_a" == "socks" ]; then
     echo -e "-----------------------------------"
-    read -p "Vui lòng nhập tên người dùng vớ: " flag_c
+    read -p "Vui lòng nhập tên người dùng socks: " flag_c
   elif [[ "$flag_a" == "peer"* ]]; then
     echo -e "------------------------------------------------------------------"
     echo -e "Vui lòng nhập tên tệp danh sách đích"
@@ -247,16 +247,16 @@ function read_d_ip() {
     echo -e "------------------------------------------------------------------"
     echo -e "Vui lòng nhập lần lượt ip đích và cổng bạn muốn cân bằng tải"
     while true; do
-      echo -e "Bạn có muốn đổi máy từ${flag_b}IP hoặc tên miền mà lưu lượng đã nhận được chuyển tiếp đến?"
+      echo -e "Bạn có muốn đổi máy từ ${flag_b} IP hoặc tên miền mà lưu lượng đã nhận được chuyển tiếp đến?"
       read -p "vui lòng nhập: " peer_ip
-      echo -e "Bạn có muốn đổi máy từ${flag_b}Lưu lượng đã nhận được chuyển tiếp tới${peer_ip}cảng nào của?"
+      echo -e "Bạn có muốn đổi máy từ ${flag_b} Lưu lượng đã nhận được chuyển tiếp tới ${peer_ip} cảng nào của?"
       read -p "vui lòng nhập: " peer_port
       echo -e "$peer_ip:$peer_port" >>$flag_c.txt
       read -e -p "Tiếp tục thêm đổ bộ? [Y/n]:" addyn
       [[ -z ${addyn} ]] && addyn="y"
       if [[ ${addyn} == [Nn] ]]; then
         echo -e "------------------------------------------------------------------"
-        echo -e "đã được tạo trong thư mục gốc$flag_c.txt, bạn có thể chỉnh sửa tệp này bất kỳ lúc nào để sửa đổi thông tin đích và khởi động lại gost để có hiệu lực"
+        echo -e "đã được tạo trong thư mục gốc $flag_c .txt, bạn có thể chỉnh sửa tệp này bất kỳ lúc nào để sửa đổi thông tin đích và khởi động lại gost để có hiệu lực"
         echo -e "------------------------------------------------------------------"
         break
       else
@@ -266,9 +266,9 @@ function read_d_ip() {
     done
   elif [[ "$flag_a" == "cdn"* ]]; then
     echo -e "------------------------------------------------------------------"
-    echo -e "chuyển đơn vị từ${flag_b}IP tự chọn để chuyển tiếp lưu lượng đã nhận:"
+    echo -e "chuyển đơn vị từ ${flag_b} IP tự chọn để chuyển tiếp lưu lượng đã nhận:"
     read -p "vui lòng nhập: " flag_c
-    echo -e "Bạn có muốn đổi máy từ${flag_b}Lưu lượng đã nhận được chuyển tiếp tới${flag_c}cảng nào của?"
+    echo -e "Bạn có muốn đổi máy từ ${flag_b} Lưu lượng đã nhận được chuyển tiếp tới ${flag_c} cảng nào của?"
     echo -e "[1] 80"
     echo -e "[2] 443"
     echo -e "[3] Cổng tùy chỉnh (chẳng hạn như 8080, v.v.)"
@@ -286,11 +286,11 @@ function read_d_ip() {
     fi
   else
     echo -e "------------------------------------------------------------------"
-    echo -e "Bạn có muốn đổi máy từ${flag_b}IP hoặc tên miền mà lưu lượng đã nhận được chuyển tiếp đến?"
+    echo -e "Bạn có muốn đổi máy từ ${flag_b} IP hoặc tên miền mà lưu lượng đã nhận được chuyển tiếp đến?"
     echo -e "Lưu ý: IP có thể là IP công cộng của [máy từ xa / máy hiện tại] hoặc IP lặp cục bộ của máy này (tức là 127.0.0.1)"
     echo -e "Việc điền địa chỉ IP cụ thể phụ thuộc vào IP mà dịch vụ nhận lưu lượng đang nghe (xem: https://github.com/KANIKIG/Multi-EasyGost)"
     if [[ ${is_cert} == [Yy] ]]; then
-      echo -e "Lưu ý: Khi máy đích mở chứng chỉ TLS tùy chỉnh, hãy nhớ điền vào${Red_font_prefix}tên miền${Font_color_suffix}"
+      echo -e "Lưu ý: Khi máy đích mở chứng chỉ TLS tùy chỉnh, hãy nhớ điền vào ${Red_font_prefix} tên miền ${Font_color_suffix}"
     fi
     read -p "vui lòng nhập: " flag_c
   fi
@@ -329,7 +329,7 @@ function read_d_port() {
     read -p "Vui lòng nhập máy chủ:" flag_d
   else
     echo -e "------------------------------------------------------------------"
-    echo -e "Bạn có muốn đổi máy từ${flag_b}Lưu lượng đã nhận được chuyển tiếp tới${flag_c}cảng nào của?"
+    echo -e "Bạn có muốn đổi máy từ ${flag_b} Lưu lượng đã nhận được chuyển tiếp tới ${flag_c} cảng nào của?"
     read -p "vui lòng nhập: " flag_d
     if [[ ${is_cert} == [Yy] ]]; then
       flag_d="$flag_d?secure=true"
@@ -390,13 +390,13 @@ function encrypt() {
 
   if [ "$numencrypt" == "1" ]; then
     flag_a="encrypttls"
-    echo -e "Lưu ý: Chọn Có để bật xác minh chứng chỉ cho chứng chỉ tùy chỉnh đích để đảm bảo an ninh và đảm bảo điền vào máy đích sau này${Red_font_prefix} tên miền ${Font_color_suffix}"
+    echo -e "Lưu ý: Chọn Có để bật xác minh chứng chỉ cho chứng chỉ tùy chỉnh đích để đảm bảo an ninh và đảm bảo điền vào máy đích sau này ${Red_font_prefix} tên miền ${Font_color_suffix}"
     read -e -p "Máy đích có bật chứng chỉ TLS tùy chỉnh không? [y/n]:" is_cert
   elif [ "$numencrypt" == "2" ]; then
     flag_a="encryptws"
   elif [ "$numencrypt" == "3" ]; then
     flag_a="encryptwss"
-    echo -e "Lưu ý: Chọn Có để bật xác minh chứng chỉ cho chứng chỉ tùy chỉnh đích để đảm bảo an ninh và đảm bảo điền vào máy đích sau này${Red_font_prefix} tên miền ${Font_color_suffix}"
+    echo -e "Lưu ý: Chọn Có để bật xác minh chứng chỉ cho chứng chỉ tùy chỉnh đích để đảm bảo an ninh và đảm bảo điền vào máy đích sau này ${Red_font_prefix} tên miền ${Font_color_suffix}"
     read -e -p "Máy đích có bật chứng chỉ TLS tùy chỉnh không? [y/n]:" is_cert
   else
     echo "type error, please try again"
@@ -834,7 +834,7 @@ cron_restart() {
       echo -e "Cài đặt khởi động lại theo lịch trình thành công!"
     elif [ "$numcrontype" == "2" ]; then
       echo -e "-----------------------------------"
-      read -p "每日？点重启: " cronhr
+      read -p "hằng ngày? bấm khởi động lại: " cronhr
       echo "0 0 $cronhr * * ? systemctl restart gost" >>/etc/crontab
       echo -e "Cài đặt khởi động lại theo lịch trình thành công!"
     else
