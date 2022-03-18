@@ -1,47 +1,46 @@
-# Multi-EasyGost一键脚本使用指南
+# Multi-EasyGost一Nguyên tắc sử dụng Key Script
 ***
-## 感谢: 
-1. 感谢 @ginuerzh 大佬开发的 [gost](https://github.com/ginuerzh/gost) 隧道程序 ，功能强大使用简单，想要详细了解的朋友可以查看[官方文档](https://docs.ginuerzh.xyz/gost/)
-2. 感谢 @风萧萧兮易水寒 大佬的[原始脚本](https://www.fiisi.com/?p=125)
-3. 感谢 @ STSDUST 提供的EasyGost脚本（已删库），此脚本是基于其进行修改增强
+## Cảm ơnn: 
+1. Cảm ơn @ginuerzh vì sự phát triển [gost](https://github.com/ginuerzh/gost) Chương trình đường hầm, mạnh mẽ và dễ sử dụng, bạn bè nào muốn biết thêm về nó có thể xem qua[官方文档](https://docs.ginuerzh.xyz/gost/)
+2. Cảm ơn anh chàng lớn @fengxiaoxiaoxiyishuihan [原始脚本](https://www.fiisi.com/?p=125)
+3. Nhờ tập lệnh EasyGost (thư viện đã xóa) do @STSDUST cung cấp, tập lệnh này được sửa đổi và nâng cao dựa trên nó
 ***
-## 简介
+## Giới thiệu
 
-> 项目地址及帮助文档:  
-> https://github.com/KANIKIG/Multi-EasyGost
+> Địa chỉ dự án và tài liệu trợ giúp: 
+> https://github.com/AikoCute/Multi-EasyGost
 ***
-## 脚本
+## kịch bản
 
-* 启动脚本  
+* kịch bản khởi động
   `wget --no-check-certificate -O gost.sh https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.sh && chmod +x gost.sh && ./gost.sh`  
-* 再次运行本脚本只需要输入`./gost.sh`回车即可  
+* Để chạy lại tập lệnh, chỉ cần nhập`./gost.sh` Quay lại thôi 
 
-## 功能
+## Chức năng
+### Chức năng tập lệnh gốc
 
-### 原脚本功能
+- Các tệp cấu hình systemd và gost được triển khai để quản lý gost
+- Nhiều quy tắc chuyển tiếp có hiệu lực cùng lúc mà không cần sự trợ giúp của các công cụ khác (chẳng hạn như màn hình)
+- Việc chuyển tiếp không bị lỗi sau khi máy khởi động lại
+- Các loại chuyển được hỗ trợ:
+   - chuyển tiếp tcp + udp mà không cần mã hóa
+   - mã hóa relay + tls
 
-- 实现了systemd及gost配置文件对gost进行管理
-- 在不借助其他工具(如screen)的情况下实现多条转发规则同时生效
-- 机器reboot后转发不失效
-- 支持传输类型：
-  - tcp+udp不加密转发
-  -  relay+tls加密
+### Có gì mới trong tập lệnh này
 
-### 此脚本新增功能
+- Đã thêm chức năng lựa chọn loại chuyển
+- Loại chuyển mới được hỗ trợ
+   - relay + ws
+   - relay + wss
+- Một cú nhấp chuột tạo proxy ss hoặc vớ5 trên máy đích (tích hợp sẵn gost)
+- Cân bằng tải đơn giản đa điểm hạ cánh hỗ trợ nhiều kiểu truyền dẫn
+- Đã thêm nhân bản tải xuống tăng tốc trong nước gost
+- Tạo hoặc xóa đơn giản các tác vụ khởi động lại theo lịch trình gost
+- Tập lệnh để tự động kiểm tra các bản cập nhật
+- Chuyển tiếp ip của nút tự chọn CDN
+- Hỗ trợ chứng chỉ TLS tùy chỉnh, ứng dụng một cú nhấp chuột cho chứng chỉ khi hạ cánh và xác minh chứng chỉ để chuyển tuyến
 
-- 增加了传输类型选择功能
-- 新支持传输类型
-  - relay+ws
-  - relay+wss
-- 落地机一键创建ss或socks5代理 (gost内置)
-- 支持多传输类型的多落地简单型均衡负载
-- 增加gost国内加速下载镜像
-- 简单创建或删除gost定时重启任务
-- 脚本自动检查更新
-- 转发CDN自选节点ip
-- 支持自定义tls证书，落地可一键申请证书，中转可开启证书校验
-
-## 功能展示
+## hiển thị chức năng
 
 ![iShot2020-12-14下午05.42.23.png](https://i.loli.net/2020/12/14/q75PO6s2DMIcUKB.png)
 
