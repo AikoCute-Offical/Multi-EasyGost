@@ -1,14 +1,14 @@
 #! /bin/bash
 Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Font_color_suffix="\033[0m"
-Info="${Green_font_prefix}[信息]${Font_color_suffix}"
-Error="${Red_font_prefix}[错误]${Font_color_suffix}"
+Info="${Green_font_prefix}[thông tin]${Font_color_suffix}"
+Error="${Red_font_prefix}[sai lầm, điều sai, ngộ nhận]${Font_color_suffix}"
 shell_version="1.1.0"
 gost_conf_path="/etc/gost/config.json"
 raw_conf_path="/etc/gost/rawconf"
 function checknew() {
   checknew=$(gost -V 2>&1 | awk '{print $2}')
   check_new_ver
-  echo "你的gost版本为:""$checknew"""
+  echo "Phiên bản gost của bạn là:""$checknew"""
   echo -n 是否更新\(y/n\)\:
   read checknewnum
   if test $checknewnum = "y"; then
@@ -39,7 +39,7 @@ function check_sys() {
   fi
   bit=$(uname -m)
   if test "$bit" != "x86_64"; then
-    echo "请输入你的芯片架构，/386/armv5/armv6/armv7/armv8"
+    echo "Vui lòng nhập kiến ​​trúc chip của bạn，/386/armv5/armv6/armv7/armv8"
     read bit
   else
     bit="amd64"
@@ -58,15 +58,15 @@ function Installation_dependency() {
   fi
 }
 function check_root() {
-  [[ $EUID != 0 ]] && echo -e "${Error} 当前非ROOT账号(或没有ROOT权限)，无法继续操作，请更换ROOT账号或使用 ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
+  [[ $EUID != 0 ]] && echo -e "${Error} Tài khoản không ROOT hiện tại (hoặc không có quyền ROOT) không thể tiếp tục hoạt động, vui lòng thay đổi tài khoản ROOT hoặc sử dụng ${Green_background_prefix}sudo su${Font_color_suffix} Lệnh này nhận được quyền ROOT tạm thời (bạn có thể được nhắc nhập mật khẩu của tài khoản hiện tại sau khi thực hiện)." && exit 1
 }
 function check_new_ver() {
   ct_new_ver=$(wget --no-check-certificate -qO- -t2 -T3 https://api.github.com/repos/ginuerzh/gost/releases/latest | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g;s/v//g')
   if [[ -z ${ct_new_ver} ]]; then
     ct_new_ver="2.11.1"
-    echo -e "${Error} gost 最新版本获取失败，正在下载v${ct_new_ver}版"
+    echo -e "${Error} gost Không tải được phiên bản mới nhất, đang tải xuống v${ct_new_ver}版"
   else
-    echo -e "${Info} gost 目前最新版本为 ${ct_new_ver}"
+    echo -e "${Info} gost Phiên bản mới nhất là ${ct_new_ver}"
   fi
 }
 function check_file() {
@@ -90,8 +90,8 @@ function Install_ct() {
   check_file
   check_sys
   check_new_ver
-  echo -e "若为国内机器建议使用大陆镜像加速下载"
-  read -e -p "是否使用？[y/n]:" addyn
+  echo -e "Nếu là máy nội địa thì nên sử dụng gương đại lục để tăng tốc tải"
+  read -e -p "sử dụng hay không? [y/n]:" addyn
   [[ -z ${addyn} ]] && addyn="n"
   if [[ ${addyn} == [Yy] ]]; then
     rm -rf gost-linux-"$bit"-"$ct_new_ver".gz
@@ -116,12 +116,12 @@ function Install_ct() {
   systemctl enable gost && systemctl restart gost
   echo "------------------------------"
   if test -a /usr/bin/gost -a /usr/lib/systemctl/gost.service -a /etc/gost/config.json; then
-    echo "gost安装成功"
+    echo "gost được cài đặt thành công"
     rm -rf "$(pwd)"/gost
     rm -rf "$(pwd)"/gost.service
     rm -rf "$(pwd)"/config.json
   else
-    echo "gost没有安装成功"
+    echo "gost không được cài đặt thành công"
     rm -rf "$(pwd)"/gost
     rm -rf "$(pwd)"/gost.service
     rm -rf "$(pwd)"/config.json
@@ -133,15 +133,15 @@ function Uninstall_ct() {
   rm -rf /usr/lib/systemd/system/gost.service
   rm -rf /etc/gost
   rm -rf "$(pwd)"/gost.sh
-  echo "gost已经成功删除"
+  echo "gost đã được xóa thành công"
 }
 function Start_ct() {
   systemctl start gost
-  echo "已启动"
+  echo "đã kích hoạt"
 }
 function Stop_ct() {
   systemctl stop gost
-  echo "已停止"
+  echo "dừng lại"
 }
 function Restart_ct() {
   rm -rf /etc/gost/config.json
@@ -149,32 +149,32 @@ function Restart_ct() {
   writeconf
   conflast
   systemctl restart gost
-  echo "已重读配置并重启"
+  echo "Đọc lại cấu hình và khởi động lại"
 }
 function read_protocol() {
-  echo -e "请问您要设置哪种功能: "
+  echo -e "Bạn muốn đặt chức năng nào: "
   echo -e "-----------------------------------"
-  echo -e "[1] tcp+udp流量转发, 不加密"
-  echo -e "说明: 一般设置在国内中转机上"
+  echo -e "[1] chuyển tiếp lưu lượng tcp + udp, không có mã hóa"
+  echo -e "Mô tả: Nói chung được đặt trên máy bay trung chuyển nội địa"
   echo -e "-----------------------------------"
-  echo -e "[2] 加密隧道流量转发"
-  echo -e "说明: 用于转发原本加密等级较低的流量, 一般设置在国内中转机上"
-  echo -e "     选择此协议意味着你还有一台机器用于接收此加密流量, 之后须在那台机器上配置协议[3]进行对接"
+  echo -e "[2] Chuyển tiếp lưu lượng đường hầm được mã hóa"
+  echo -e "Mô tả: Nó được sử dụng để chuyển tiếp lưu lượng truy cập với mức mã hóa thấp hơn và thường được đặt trên máy bay vận chuyển nội địa"
+  echo -e "     Chọn giao thức này có nghĩa là bạn vẫn có một máy để nhận lưu lượng được mã hóa này và sau đó bạn phải định cấu hình giao thức [3] trên máy đó để gắn"
   echo -e "-----------------------------------"
-  echo -e "[3] 解密由gost传输而来的流量并转发"
-  echo -e "说明: 对于经由gost加密中转的流量, 通过此选项进行解密并转发给本机的代理服务端口或转发给其他远程机器"
-  echo -e "      一般设置在用于接收中转流量的国外机器上"
+  echo -e "[3] Giải mã và chuyển tiếp lưu lượng truy cập từ gost"
+  echo -e "Giải thích: Đối với lưu lượng được truyền qua mã hóa gost, tùy chọn này được sử dụng để giải mã và chuyển tiếp đến cổng dịch vụ proxy của máy cục bộ hoặc tới các máy từ xa khác"
+  echo -e "      Nói chung được đặt trên các máy nước ngoài được sử dụng để nhận lưu lượng chuyển tuyến"
   echo -e "-----------------------------------"
-  echo -e "[4] 一键安装ss/socks5代理"
-  echo -e "说明: 使用gost内置的代理协议，轻量且易于管理"
+  echo -e "[4] Cài đặt proxy ss / vớ5 bằng một cú nhấp chuột"
+  echo -e "Mô tả: sử dụng giao thức proxy tích hợp của gost, nhẹ và dễ quản lý"
   echo -e "-----------------------------------"
-  echo -e "[5] 进阶：多落地均衡负载"
-  echo -e "说明: 支持各种加密方式的简单均衡负载"
+  echo -e "[5] Nâng cao: Nhiều lần hạ cánh để cân bằng tải"
+  echo -e "Mô tả: Cân bằng tải đơn giản hỗ trợ các phương pháp mã hóa khác nhau"
   echo -e "-----------------------------------"
-  echo -e "[6] 进阶：转发CDN自选节点"
-  echo -e "说明: 只需在中转机设置"
+  echo -e "[6] Nâng cao: Chuyển tiếp nút tự chọn CDN"
+  echo -e "Mô tả: Chỉ cần đặt nó trên máy chuyển"
   echo -e "-----------------------------------"
-  read -p "请选择: " numprotocol
+  read -p "xin vui lòng chọn: " numprotocol
 
   if [ "$numprotocol" == "1" ]; then
     flag_a="nonencrypt"
@@ -196,20 +196,20 @@ function read_protocol() {
 function read_s_port() {
   if [ "$flag_a" == "ss" ]; then
     echo -e "-----------------------------------"
-    read -p "请输入ss密码: " flag_b
+    read -p "Vui lòng nhập mật khẩu ss: " flag_b
   elif [ "$flag_a" == "socks" ]; then
     echo -e "-----------------------------------"
-    read -p "请输入socks密码: " flag_b
+    read -p "Vui lòng nhập mật khẩu vớ: " flag_b
   else
     echo -e "------------------------------------------------------------------"
-    echo -e "请问你要将本机哪个端口接收到的流量进行转发?"
-    read -p "请输入: " flag_b
+    echo -e "Bạn muốn chuyển tiếp lưu lượng nhận được trên máy này qua cổng nào?"
+    read -p "vui lòng nhập: " flag_b
   fi
 }
 function read_d_ip() {
   if [ "$flag_a" == "ss" ]; then
     echo -e "------------------------------------------------------------------"
-    echo -e "请问您要设置的ss加密(仅提供常用的几种): "
+    echo -e "Tôi có thể hỏi mã hóa ss mà bạn muốn đặt không (chỉ những mã được sử dụng phổ biến mới được cung cấp):"
     echo -e "-----------------------------------"
     echo -e "[1] aes-256-gcm"
     echo -e "[2] aes-256-cfb"
@@ -218,7 +218,7 @@ function read_d_ip() {
     echo -e "[5] rc4-md5"
     echo -e "[6] AEAD_CHACHA20_POLY1305"
     echo -e "-----------------------------------"
-    read -p "请选择ss加密方式: " ssencrypt
+    read -p "Vui lòng chọn phương pháp mã hóa ss: " ssencrypt
 
     if [ "$ssencrypt" == "1" ]; then
       flag_c="aes-256-gcm"
@@ -238,47 +238,47 @@ function read_d_ip() {
     fi
   elif [ "$flag_a" == "socks" ]; then
     echo -e "-----------------------------------"
-    read -p "请输入socks用户名: " flag_c
+    read -p "Vui lòng nhập tên người dùng vớ: " flag_c
   elif [[ "$flag_a" == "peer"* ]]; then
     echo -e "------------------------------------------------------------------"
-    echo -e "请输入落地列表文件名"
-    read -e -p "自定义但不同配置应不重复，不用输入后缀，例如ips1、iplist2: " flag_c
+    echo -e "Vui lòng nhập tên tệp danh sách đích"
+    read -e -p "Không nên lặp lại các cấu hình tùy chỉnh nhưng khác nhau, không nhập hậu tố, chẳng hạn như ips1, iplist2:" flag_c
     touch $flag_c.txt
     echo -e "------------------------------------------------------------------"
-    echo -e "请依次输入你要均衡负载的落地ip与端口"
+    echo -e "Vui lòng nhập lần lượt ip đích và cổng bạn muốn cân bằng tải"
     while true; do
-      echo -e "请问你要将本机从${flag_b}接收到的流量转发向的IP或域名?"
-      read -p "请输入: " peer_ip
-      echo -e "请问你要将本机从${flag_b}接收到的流量转发向${peer_ip}的哪个端口?"
-      read -p "请输入: " peer_port
+      echo -e "Bạn có muốn đổi máy từ${flag_b}IP hoặc tên miền mà lưu lượng đã nhận được chuyển tiếp đến?"
+      read -p "vui lòng nhập: " peer_ip
+      echo -e "Bạn có muốn đổi máy từ${flag_b}Lưu lượng đã nhận được chuyển tiếp tới${peer_ip}cảng nào của?"
+      read -p "vui lòng nhập: " peer_port
       echo -e "$peer_ip:$peer_port" >>$flag_c.txt
-      read -e -p "是否继续添加落地？[Y/n]:" addyn
+      read -e -p "Tiếp tục thêm đổ bộ? [Y/n]:" addyn
       [[ -z ${addyn} ]] && addyn="y"
       if [[ ${addyn} == [Nn] ]]; then
         echo -e "------------------------------------------------------------------"
-        echo -e "已在root目录创建$flag_c.txt，您可以随时编辑该文件修改落地信息，重启gost即可生效"
+        echo -e "đã được tạo trong thư mục gốc$flag_c.txt, bạn có thể chỉnh sửa tệp này bất kỳ lúc nào để sửa đổi thông tin đích và khởi động lại gost để có hiệu lực"
         echo -e "------------------------------------------------------------------"
         break
       else
         echo -e "------------------------------------------------------------------"
-        echo -e "继续添加均衡负载落地配置"
+        echo -e "Tiếp tục thêm cấu hình hạ cánh tải trọng cân bằng"
       fi
     done
   elif [[ "$flag_a" == "cdn"* ]]; then
     echo -e "------------------------------------------------------------------"
-    echo -e "将本机从${flag_b}接收到的流量转发向的自选ip:"
-    read -p "请输入: " flag_c
-    echo -e "请问你要将本机从${flag_b}接收到的流量转发向${flag_c}的哪个端口?"
+    echo -e "chuyển đơn vị từ${flag_b}IP tự chọn để chuyển tiếp lưu lượng đã nhận:"
+    read -p "vui lòng nhập: " flag_c
+    echo -e "Bạn có muốn đổi máy từ${flag_b}Lưu lượng đã nhận được chuyển tiếp tới${flag_c}cảng nào của?"
     echo -e "[1] 80"
     echo -e "[2] 443"
-    echo -e "[3] 自定义端口（如8080等）"
-    read -p "请选择端口: " cdnport
+    echo -e "[3] Cổng tùy chỉnh (chẳng hạn như 8080, v.v.)"
+    read -p "Vui lòng chọn một cổng: " cdnport
     if [ "$cdnport" == "1" ]; then
       flag_c="$flag_c:80"
     elif [ "$cdnport" == "2" ]; then
       flag_c="$flag_c:443"
     elif [ "$cdnport" == "3" ]; then
-      read -p "请输入自定义端口: " customport
+      read -p "Vui lòng nhập cổng tùy chỉnh: " customport
       flag_c="$flag_c:$customport"
     else
       echo "type error, please try again"
@@ -286,33 +286,33 @@ function read_d_ip() {
     fi
   else
     echo -e "------------------------------------------------------------------"
-    echo -e "请问你要将本机从${flag_b}接收到的流量转发向哪个IP或域名?"
-    echo -e "注: IP既可以是[远程机器/当前机器]的公网IP, 也可是以本机本地回环IP(即127.0.0.1)"
-    echo -e "具体IP地址的填写, 取决于接收该流量的服务正在监听的IP(详见: https://github.com/KANIKIG/Multi-EasyGost)"
+    echo -e "Bạn có muốn đổi máy từ${flag_b}IP hoặc tên miền mà lưu lượng đã nhận được chuyển tiếp đến?"
+    echo -e "Lưu ý: IP có thể là IP công cộng của [máy từ xa / máy hiện tại] hoặc IP lặp cục bộ của máy này (tức là 127.0.0.1)"
+    echo -e "Việc điền địa chỉ IP cụ thể phụ thuộc vào IP mà dịch vụ nhận lưu lượng đang nghe (xem: https://github.com/KANIKIG/Multi-EasyGost)"
     if [[ ${is_cert} == [Yy] ]]; then
-      echo -e "注意: 落地机开启自定义tls证书，务必填写${Red_font_prefix}域名${Font_color_suffix}"
+      echo -e "Lưu ý: Khi máy đích mở chứng chỉ TLS tùy chỉnh, hãy nhớ điền vào${Red_font_prefix}tên miền${Font_color_suffix}"
     fi
-    read -p "请输入: " flag_c
+    read -p "vui lòng nhập: " flag_c
   fi
 }
 function read_d_port() {
   if [ "$flag_a" == "ss" ]; then
     echo -e "------------------------------------------------------------------"
-    echo -e "请问你要设置ss代理服务的端口?"
-    read -p "请输入: " flag_d
+    echo -e "Tôi có thể yêu cầu bạn đặt cổng của dịch vụ proxy ss được không?"
+    read -p "vui lòng nhập: " flag_d
   elif [ "$flag_a" == "socks" ]; then
     echo -e "------------------------------------------------------------------"
-    echo -e "请问你要设置socks代理服务的端口?"
-    read -p "请输入: " flag_d
+    echo -e "Tôi có thể yêu cầu bạn đặt cổng của dịch vụ proxy vớ được không?"
+    read -p "vui lòng nhập: " flag_d
   elif [[ "$flag_a" == "peer"* ]]; then
     echo -e "------------------------------------------------------------------"
-    echo -e "您要设置的均衡负载策略: "
+    echo -e "Chính sách cân bằng tải bạn muốn đặt: "
     echo -e "-----------------------------------"
-    echo -e "[1] round - 轮询"
-    echo -e "[2] random - 随机"
-    echo -e "[3] fifo - 自上而下"
+    echo -e "[1] round - thăm dò ý kiến"
+    echo -e "[2] random - ngẫu nhiên"
+    echo -e "[3] fifo - từ trên xuống"
     echo -e "-----------------------------------"
-    read -p "请选择均衡负载类型: " numstra
+    read -p "Vui lòng chọn loại cân bằng tải: " numstra
 
     if [ "$numstra" == "1" ]; then
       flag_d="round"
@@ -326,11 +326,11 @@ function read_d_port() {
     fi
   elif [[ "$flag_a" == "cdn"* ]]; then
     echo -e "------------------------------------------------------------------"
-    read -p "请输入host:" flag_d
+    read -p "Vui lòng nhập máy chủ:" flag_d
   else
     echo -e "------------------------------------------------------------------"
-    echo -e "请问你要将本机从${flag_b}接收到的流量转发向${flag_c}的哪个端口?"
-    read -p "请输入: " flag_d
+    echo -e "Bạn có muốn đổi máy từ${flag_b}Lưu lượng đã nhận được chuyển tiếp tới${flag_c}cảng nào của?"
+    read -p "vui lòng nhập: " flag_d
     if [[ ${is_cert} == [Yy] ]]; then
       flag_d="$flag_d?secure=true"
     fi
@@ -379,42 +379,42 @@ function multiconflast() {
   fi
 }
 function encrypt() {
-  echo -e "请问您要设置的转发传输类型: "
+  echo -e "Bạn muốn đặt kiểu truyền chuyển tiếp nào?: "
   echo -e "-----------------------------------"
-  echo -e "[1] tls隧道"
-  echo -e "[2] ws隧道"
-  echo -e "[3] wss隧道"
-  echo -e "注意: 同一则转发，中转与落地传输类型必须对应！本脚本默认开启tcp+udp"
+  echo -e "[1] đường hầm tls"
+  echo -e "[2] đường hầm ws"
+  echo -e "[3] đường hầm wss"
+  echo -e "Lưu ý: Đối với cùng một chuyển tiếp, kiểu truyền chuyển tiếp và chuyển tiếp phải tương ứng! Tập lệnh này cho phép tcp + udp theo mặc định"
   echo -e "-----------------------------------"
-  read -p "请选择转发传输类型: " numencrypt
+  read -p "Vui lòng chọn loại hình vận tải chuyển tiếp: " numencrypt
 
   if [ "$numencrypt" == "1" ]; then
     flag_a="encrypttls"
-    echo -e "注意: 选择 是 将针对落地的自定义证书开启证书校验保证安全性，稍后落地机务必填写${Red_font_prefix}域名${Font_color_suffix}"
-    read -e -p "落地机是否开启了自定义tls证书？[y/n]:" is_cert
+    echo -e "Lưu ý: Chọn Có để bật xác minh chứng chỉ cho chứng chỉ tùy chỉnh đích để đảm bảo an ninh và đảm bảo điền vào máy đích sau này${Red_font_prefix} tên miền ${Font_color_suffix}"
+    read -e -p "Máy đích có bật chứng chỉ TLS tùy chỉnh không? [y/n]:" is_cert
   elif [ "$numencrypt" == "2" ]; then
     flag_a="encryptws"
   elif [ "$numencrypt" == "3" ]; then
     flag_a="encryptwss"
-    echo -e "注意: 选择 是 将针对落地的自定义证书开启证书校验保证安全性，稍后落地机务必填写${Red_font_prefix}域名${Font_color_suffix}"
-    read -e -p "落地机是否开启了自定义tls证书？[y/n]:" is_cert
+    echo -e "Lưu ý: Chọn Có để bật xác minh chứng chỉ cho chứng chỉ tùy chỉnh đích để đảm bảo an ninh và đảm bảo điền vào máy đích sau này${Red_font_prefix} tên miền ${Font_color_suffix}"
+    read -e -p "Máy đích có bật chứng chỉ TLS tùy chỉnh không? [y/n]:" is_cert
   else
     echo "type error, please try again"
     exit
   fi
 }
 function enpeer() {
-  echo -e "请问您要设置的均衡负载传输类型: "
+  echo -e "Bạn muốn thiết lập loại truyền tải cân bằng tải nào?: "
   echo -e "-----------------------------------"
-  echo -e "[1] 不加密转发"
-  echo -e "[2] tls隧道"
-  echo -e "[3] ws隧道"
-  echo -e "[4] wss隧道"
-  echo -e "注意: 同一则转发，中转与落地传输类型必须对应！本脚本默认同一配置的传输类型相同"
-  echo -e "此脚本仅支持简单型均衡负载，具体可参考官方文档"
-  echo -e "gost均衡负载官方文档：https://docs.ginuerzh.xyz/gost/load-balancing"
+  echo -e "[1] Chuyển tiếp không được mã hóa"
+  echo -e "[2] đường hầm tls"
+  echo -e "[3] đường hầm ws"
+  echo -e "[4] đường hầm wss"
+  echo -e "Lưu ý: Đối với cùng một chuyển tiếp, kiểu truyền chuyển tiếp và đường truyền hạ cánh phải tương ứng! Tập lệnh này mặc định cho cùng một kiểu truyền trong cùng một cấu hình"
+  echo -e "Tập lệnh này chỉ hỗ trợ cân bằng tải đơn giản, vui lòng tham khảo tài liệu chính thức để biết chi tiết"
+  echo -e "Tài liệu chính thức về cân bằng tải của Gost: https://docs.ginuerzh.xyz/gost/load-balancing"
   echo -e "-----------------------------------"
-  read -p "请选择转发传输类型: " numpeer
+  read -p "Vui lòng chọn loại hình vận tải chuyển tiếp: " numpeer
 
   if [ "$numpeer" == "1" ]; then
     flag_a="peerno"
@@ -431,15 +431,15 @@ function enpeer() {
   fi
 }
 function cdn() {
-  echo -e "请问您要设置的CDN传输类型: "
+  echo -e "Bạn muốn thiết lập kiểu truyền CDN nào? : "
   echo -e "-----------------------------------"
-  echo -e "[1] 不加密转发"
-  echo -e "[2] ws隧道"
-  echo -e "[3] wss隧道"
-  echo -e "注意: 同一则转发，中转与落地传输类型必须对应！"
-  echo -e "此功能只需在中转机设置"
+  echo -e "[1] Chuyển tiếp không được mã hóa"
+  echo -e "[2] đường hầm ws"
+  echo -e "[3] đường hầm wss"
+  echo -e "Lưu ý: Đối với cùng một chuyển tiếp, loại chuyển tiếp và chuyển tiếp hạ cánh phải tương ứng!"
+  echo -e "Chức năng này chỉ cần được thiết lập trong máy chuyển"
   echo -e "-----------------------------------"
-  read -p "请选择CDN转发传输类型: " numcdn
+  read -p "Vui lòng chọn loại vận chuyển chuyển tiếp CDN: " numcdn
 
   if [ "$numcdn" == "1" ]; then
     flag_a="cdnno"
@@ -454,12 +454,12 @@ function cdn() {
 }
 function cert() {
   echo -e "-----------------------------------"
-  echo -e "[1] ACME一键申请证书"
-  echo -e "[2] 手动上传证书"
+  echo -e "[1] Ứng dụng chứng chỉ một cú nhấp chuột ACME"
+  echo -e "[2] Tải lên chứng chỉ theo cách thủ công"
   echo -e "-----------------------------------"
-  echo -e "说明: 仅用于落地机配置，默认使用的gost内置的证书可能带来安全问题，使用自定义证书提高安全性"
-  echo -e "     配置后对本机所有tls/wss解密生效，无需再次设置"
-  read -p "请选择证书生成方式: " numcert
+  echo -e "Lưu ý: Nó chỉ được sử dụng cho cấu hình máy đích. Chứng chỉ gost tích hợp mặc định có thể gây ra sự cố bảo mật. Hãy sử dụng chứng chỉ tùy chỉnh để cải thiện bảo mật"
+  echo -e "Sau khi cấu hình, nó sẽ có hiệu lực cho tất cả giải mã tls / wss của máy này, không cần thiết lập lại"
+  read -p "Vui lòng chọn một phương pháp tạo chứng chỉ: " numcert
 
   if [ "$numcert" == "1" ]; then
     check_sys
@@ -468,50 +468,50 @@ function cert() {
     else
       apt-get install -y socat
     fi
-    read -p "请输入ZeroSSL的账户邮箱(至 zerossl.com 注册即可)：" zeromail
-    read -p "请输入解析到本机的域名：" domain
+    read -p "Vui lòng nhập email tài khoản ZeroSSL của bạn (đăng ký tại zerossl.com):" zeromail
+    read -p "Vui lòng nhập tên miền được phân giải cho máy này:" domain
     curl https://get.acme.sh | sh
     "$HOME"/.acme.sh/acme.sh --set-default-ca --server zerossl
     "$HOME"/.acme.sh/acme.sh --register-account -m "${zeromail}" --server zerossl
-    echo -e "ACME证书申请程序安装成功"
+    echo -e "Chương trình ứng dụng chứng chỉ ACME đã được cài đặt thành công"
     echo -e "-----------------------------------"
-    echo -e "[1] HTTP申请（需要80端口未占用）"
-    echo -e "[2] Cloudflare DNS API 申请（需要输入APIKEY）"
+    echo -e "[1] Ứng dụng HTTP (yêu cầu không có cổng 80) "
+    echo -e "[2] Yêu cầu API Cloudflare DNS (yêu cầu APIKEY)"
     echo -e "-----------------------------------"
-    read -p "请选择证书申请方式: " certmethod
+    read -p "Vui lòng chọn phương thức đăng ký chứng chỉ: " certmethod
     if [ "certmethod" == "1" ]; then
-      echo -e "请确认本机${Red_font_prefix}80${Font_color_suffix}端口未被占用, 否则会申请失败"
+      echo -e "Vui lòng xác nhận đơn vị này ${Red_font_prefix} 80 ${Font_color_suffix} Cổng không bị chiếm dụng, nếu không ứng dụng sẽ bị lỗi"
       if "$HOME"/.acme.sh/acme.sh --issue -d "${domain}" --standalone -k ec-256 --force; then
-        echo -e "SSL 证书生成成功，默认申请高安全性的ECC证书"
+        echo -e "Chứng chỉ SSL được tạo thành công và chứng chỉ ECC bảo mật cao được áp dụng theo mặc định"
         if [ ! -d "$HOME/gost_cert" ]; then
           mkdir $HOME/gost_cert
         fi
         if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath $HOME/gost_cert/cert.pem --keypath $HOME/gost_cert/key.pem --ecc --force; then
-          echo -e "SSL 证书配置成功，且会自动续签，证书及秘钥位于用户目录下的 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录"
-          echo -e "证书目录名与证书文件名请勿更改; 删除 gost_cert 目录后用脚本重启,即自动启用gost内置证书"
+          echo -e "Chứng chỉ SSL được định cấu hình thành công và sẽ tự động được gia hạn. Chứng chỉ và khóa nằm trong thư mục ${Red_font_prefix} gost_cert ${Font_color_suffix} trong thư mục người dùng"
+          echo -e "Không thay đổi tên thư mục chứng chỉ và tên tệp chứng chỉ; xóa thư mục gost_cert và khởi động lại bằng tập lệnh, tức là tự động bật chứng chỉ tích hợp sẵn gost"
           echo -e "-----------------------------------"
         fi
       else
-        echo -e "SSL 证书生成失败"
+        echo -e "Tạo chứng chỉ SSL không thành công"
         exit 1
       fi
     else
-      read -p "请输入Cloudflare账户邮箱：" cfmail
-      read -p "请输入Cloudflare Global API Key：" cfkey
+      read -p "Vui lòng nhập email tài khoản Cloudflare của bạn: " cfmail
+      read -p "Vui lòng nhập Khóa API toàn cầu của Cloudflare: " cfkey
       export CF_Key="${cfkey}"
       export CF_Email="${cfmail}"
       if "$HOME"/.acme.sh/acme.sh --issue --dns dns_cf -d "${domain}" --standalone -k ec-256 --force; then
-        echo -e "SSL 证书生成成功，默认申请高安全性的ECC证书"
+        echo -e "Chứng chỉ SSL được tạo thành công và chứng chỉ ECC bảo mật cao được áp dụng theo mặc định"
         if [ ! -d "$HOME/gost_cert" ]; then
           mkdir $HOME/gost_cert
         fi
         if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath $HOME/gost_cert/cert.pem --keypath $HOME/gost_cert/key.pem --ecc --force; then
-          echo -e "SSL 证书配置成功，且会自动续签，证书及秘钥位于用户目录下的 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录"
-          echo -e "证书目录名与证书文件名请勿更改; 删除 gost_cert 目录后使用脚本重启, 即重新启用gost内置证书"
+          echo -e "Chứng chỉ SSL được định cấu hình thành công và sẽ tự động được gia hạn. Chứng chỉ và khóa nằm trong thư mục ${Red_font_prefix} gost_cert ${Font_color_suffix} trong thư mục người dùng"
+          echo -e "Không thay đổi tên thư mục chứng chỉ và tên tệp chứng chỉ; sử dụng tập lệnh để khởi động lại sau khi xóa thư mục gost_cert, tức là bật lại chứng chỉ tích hợp trong gost"
           echo -e "-----------------------------------"
         fi
       else
-        echo -e "SSL 证书生成失败"
+        echo -e "Tạo chứng chỉ SSL không thành công"
         exit 1
       fi
     fi
@@ -521,9 +521,9 @@ function cert() {
       mkdir $HOME/gost_cert
     fi
     echo -e "-----------------------------------"
-    echo -e "已在用户目录建立 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录，请将证书文件 cert.pem 与秘钥文件 key.pem 上传到该目录"
-    echo -e "证书与秘钥文件名必须与上述一致，目录名也请勿更改"
-    echo -e "上传成功后，用脚本重启gost会自动启用，无需再设置; 删除 gost_cert 目录后用脚本重启,即重新启用gost内置证书"
+    echo -e "Thư mục ${Red_font_prefix} gost_cert ${Font_color_suffix} đã được tạo trong thư mục người dùng, vui lòng tải lên tệp chứng chỉ cert.pem và tệp khóa key.pem vào thư mục này"
+    echo -e "Tên tệp của chứng chỉ và khóa phải giống như ở trên và không được thay đổi tên thư mục."
+    echo -e "Sau khi tải lên thành công, khởi động lại gost với tập lệnh sẽ tự động kích hoạt nó, không cần thiết lập lại; xóa thư mục gost_cert và khởi động lại với tập lệnh, tức là kích hoạt lại chứng chỉ tích hợp trong gost"
     echo -e "-----------------------------------"
   else
     echo "type error, please try again"
@@ -531,14 +531,14 @@ function cert() {
   fi
 }
 function decrypt() {
-  echo -e "请问您要设置的解密传输类型: "
+  echo -e "Bạn muốn đặt kiểu truyền giải mã nào?: "
   echo -e "-----------------------------------"
   echo -e "[1] tls"
   echo -e "[2] ws"
   echo -e "[3] wss"
-  echo -e "注意: 同一则转发，中转与落地传输类型必须对应！本脚本默认开启tcp+udp"
+  echo -e "Lưu ý: Đối với cùng một chuyển tiếp, kiểu truyền chuyển tiếp và chuyển tiếp phải tương ứng! Tập lệnh này cho phép tcp + udp theo mặc định"
   echo -e "-----------------------------------"
-  read -p "请选择解密传输类型: " numdecrypt
+  read -p "Vui lòng chọn loại chuyển giải mã: " numdecrypt
 
   if [ "$numdecrypt" == "1" ]; then
     flag_a="decrypttls"
@@ -553,12 +553,12 @@ function decrypt() {
 }
 function proxy() {
   echo -e "------------------------------------------------------------------"
-  echo -e "请问您要设置的代理类型: "
+  echo -e "Bạn muốn đặt loại proxy nào?: "
   echo -e "-----------------------------------"
   echo -e "[1] shadowsocks"
-  echo -e "[2] socks5(强烈建议加隧道用于Telegram代理)"
+  echo -e "[2] socks5(Chúng tôi thực sự khuyên bạn nên thêm một đường hầm cho Telegram proxy)"
   echo -e "-----------------------------------"
-  read -p "请选择代理类型: " numproxy
+  read -p "Vui lòng chọn một loại proxy: " numproxy
   if [ "$numproxy" == "1" ]; then
     flag_a="ss"
   elif [ "$numproxy" == "2" ]; then
@@ -760,9 +760,9 @@ function writeconf() {
   done
 }
 function show_all_conf() {
-  echo -e "                      GOST 配置                        "
+  echo -e "                      GOST cấu hình                        "
   echo -e "--------------------------------------------------------"
-  echo -e "序号|方法\t    |本地端口\t|目的地地址:目的地端口"
+  echo -e "số sê-ri | phương thức \ t | cổng cục bộ \ t | địa chỉ đích: cổng đích"
   echo -e "--------------------------------------------------------"
 
   count_line=$(awk 'END{print NR}' $raw_conf_path)
@@ -771,37 +771,37 @@ function show_all_conf() {
     eachconf_retrieve
 
     if [ "$is_encrypt" == "nonencrypt" ]; then
-      str="不加密中转"
+      str="Truyền không được mã hóa"
     elif [ "$is_encrypt" == "encrypttls" ]; then
-      str=" tls隧道 "
+      str=" đường hầm tls "
     elif [ "$is_encrypt" == "encryptws" ]; then
-      str="  ws隧道 "
+      str="  đường hầm ws "
     elif [ "$is_encrypt" == "encryptwss" ]; then
-      str=" wss隧道 "
+      str=" đường hầm "
     elif [ "$is_encrypt" == "peerno" ]; then
-      str=" 不加密均衡负载 "
+      str=" cân bằng tải mà không cần mã hóa "
     elif [ "$is_encrypt" == "peertls" ]; then
-      str=" tls隧道均衡负载 "
+      str=" cân bằng tải đường hầm tls "
     elif [ "$is_encrypt" == "peerws" ]; then
-      str="  ws隧道均衡负载 "
+      str="  cân bằng tải đường hầm ws "
     elif [ "$is_encrypt" == "peerwss" ]; then
-      str=" wss隧道均衡负载 "
+      str=" cân bằng tải đường hầm wss "
     elif [ "$is_encrypt" == "decrypttls" ]; then
-      str=" tls解密 "
+      str=" Giải mã TLS "
     elif [ "$is_encrypt" == "decryptws" ]; then
-      str="  ws解密 "
+      str="  ws giải mã "
     elif [ "$is_encrypt" == "decryptwss" ]; then
-      str=" wss解密 "
+      str=" giải mã wss "
     elif [ "$is_encrypt" == "ss" ]; then
       str="   ss   "
     elif [ "$is_encrypt" == "socks" ]; then
       str=" socks5 "
     elif [ "$is_encrypt" == "cdnno" ]; then
-      str="不加密转发CDN"
+      str="Chuyển tiếp CDN mà không cần mã hóa"
     elif [ "$is_encrypt" == "cdnws" ]; then
-      str="ws隧道转发CDN"
+      str="CDN chuyển tiếp đường hầm ws"
     elif [ "$is_encrypt" == "cdnwss" ]; then
-      str="wss隧道转发CDN"
+      str="CDN chuyển tiếp đường hầm wss"
     else
       str=""
     fi
@@ -813,37 +813,37 @@ function show_all_conf() {
 
 cron_restart() {
   echo -e "------------------------------------------------------------------"
-  echo -e "gost定时重启任务: "
+  echo -e "wss đường hầm để bắt đầu tác vụ khởi động lại theo lịch trình để gửi CDN: "
   echo -e "-----------------------------------"
-  echo -e "[1] 配置gost定时重启任务"
-  echo -e "[2] 删除gost定时重启任务"
+  echo -e "[1] Định cấu hình gost để khởi động lại tác vụ theo định kỳ"
+  echo -e "[2] Xóa tác vụ khởi động lại theo lịch trình gost"
   echo -e "-----------------------------------"
-  read -p "请选择: " numcron
+  read -p "xin vui lòng chọn: " numcron
   if [ "$numcron" == "1" ]; then
     echo -e "------------------------------------------------------------------"
-    echo -e "gost定时重启任务类型: "
+    echo -e "loại tác vụ khởi động lại theo lịch trình gost: "
     echo -e "-----------------------------------"
-    echo -e "[1] 每？小时重启"
-    echo -e "[2] 每日？点重启"
+    echo -e "[1] Khởi động lại sau mỗi? Giờ"
+    echo -e "[2] Hàng ngày? Nhấp để khởi động lại"
     echo -e "-----------------------------------"
-    read -p "请选择: " numcrontype
+    read -p "xin vui lòng chọn: " numcrontype
     if [ "$numcrontype" == "1" ]; then
       echo -e "-----------------------------------"
-      read -p "每？小时重启: " cronhr
+      read -p "Mỗi? giờ khởi động lại: " cronhr
       echo "0 0 */$cronhr * * ? * systemctl restart gost" >>/etc/crontab
-      echo -e "定时重启设置成功！"
+      echo -e "Cài đặt khởi động lại theo lịch trình thành công!"
     elif [ "$numcrontype" == "2" ]; then
       echo -e "-----------------------------------"
       read -p "每日？点重启: " cronhr
       echo "0 0 $cronhr * * ? systemctl restart gost" >>/etc/crontab
-      echo -e "定时重启设置成功！"
+      echo -e "Cài đặt khởi động lại theo lịch trình thành công!"
     else
       echo "type error, please try again"
       exit
     fi
   elif [ "$numcron" == "2" ]; then
     sed -i "/gost/d" /etc/crontab
-    echo -e "定时重启任务删除完成！"
+    echo -e "Quá trình xóa tác vụ khởi động lại theo lịch trình đã hoàn tất!"
   else
     echo "type error, please try again"
     exit
@@ -854,50 +854,49 @@ update_sh() {
   ol_version=$(curl -L -s --connect-timeout 5 https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.sh | grep "shell_version=" | head -1 | awk -F '=|"' '{print $3}')
   if [ -n "$ol_version" ]; then
     if [[ "$shell_version" != "$ol_version" ]]; then
-      echo -e "存在新版本，是否更新 [Y/N]?"
+      echo -e "Có phiên bản mới, có cập nhật không [Y/N]?"
       read -r update_confirm
       case $update_confirm in
       [yY][eE][sS] | [yY])
         wget -N --no-check-certificate https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.sh
-        echo -e "更新完成"
+        echo -e "hoàn thành cập nhật"
         exit 0
         ;;
       *) ;;
 
       esac
     else
-      echo -e "                 ${Green_font_prefix}当前版本为最新版本！${Font_color_suffix}"
+      echo -e "                 ${Green_font_prefix} Phiên bản hiện tại là phiên bản mới nhất! ${Font_color_suffix}"
     fi
   else
-    echo -e "                 ${Red_font_prefix}脚本最新版本获取失败，请检查与github的连接！${Font_color_suffix}"
+    echo -e "                 ${Red_font_prefix} Không tải được phiên bản mới nhất của tập lệnh, vui lòng kiểm tra kết nối với github! ${Font_color_suffix}"
   fi
 }
 
 update_sh
-echo && echo -e "                 gost 一键安装配置脚本"${Red_font_prefix}[${shell_version}]${Font_color_suffix}"
+echo && echo -e "                 tập lệnh cấu hình cài đặt một cú nhấp chuột gost"${Red_font_prefix}[${shell_version}]${Font_color_suffix}"
   ----------- KANIKIG -----------
-  特性: (1)本脚本采用systemd及gost配置文件对gost进行管理
-        (2)能够在不借助其他工具(如screen)的情况下实现多条转发规则同时生效
-        (3)机器reboot后转发不失效
-  功能: (1)tcp+udp不加密转发, (2)中转机加密转发, (3)落地机解密对接转发
-  帮助文档：https://github.com/KANIKIG/Multi-EasyGost
-
- ${Green_font_prefix}1.${Font_color_suffix} 安装 gost
- ${Green_font_prefix}2.${Font_color_suffix} 更新 gost
- ${Green_font_prefix}3.${Font_color_suffix} 卸载 gost
+  Các tính năng: (1) Tập lệnh này sử dụng tệp cấu hình systemd và gost để quản lý gost
+        (2) Nhiều quy tắc chuyển tiếp có thể có hiệu lực cùng lúc mà không cần sự trợ giúp của các công cụ khác (chẳng hạn như màn hình)
+        (3) Việc chuyển tiếp không bị lỗi sau khi máy khởi động lại
+  Chức năng: (1) chuyển tiếp không mã hóa tcp + udp, (2) chuyển tiếp mã hóa máy chuyển tiếp, (3) máy hạ cánh được giải mã và chuyển tiếp được gắn vào đế
+  Tài liệu trợ giúp: https://github.com/KANIKIG/Multi-EasyGost
+ ${Green_font_prefix}1.${Font_color_suffix} cài đặt gost
+ ${Green_font_prefix}2.${Font_color_suffix} cập nhật gost
+ ${Green_font_prefix}3.${Font_color_suffix} gỡ cài đặt gost
 ————————————
- ${Green_font_prefix}4.${Font_color_suffix} 启动 gost
- ${Green_font_prefix}5.${Font_color_suffix} 停止 gost
- ${Green_font_prefix}6.${Font_color_suffix} 重启 gost
+ ${Green_font_prefix}4.${Font_color_suffix} bắt đầu đi
+ ${Green_font_prefix}5.${Font_color_suffix} ngừng lại gost
+ ${Green_font_prefix}6.${Font_color_suffix} khởi động lại gost
 ————————————
- ${Green_font_prefix}7.${Font_color_suffix} 新增gost转发配置
- ${Green_font_prefix}8.${Font_color_suffix} 查看现有gost配置
- ${Green_font_prefix}9.${Font_color_suffix} 删除一则gost配置
+ ${Green_font_prefix}7.${Font_color_suffix} Đã thêm cấu hình chuyển tiếp gost
+ ${Green_font_prefix}8.${Font_color_suffix} Xem cấu hình gost hiện có
+ ${Green_font_prefix}9.${Font_color_suffix} xóa cấu hình gost
 ————————————
- ${Green_font_prefix}10.${Font_color_suffix} gost定时重启配置
- ${Green_font_prefix}11.${Font_color_suffix} 自定义TLS证书配置
+ ${Green_font_prefix}10.${Font_color_suffix} cấu hình khởi động lại theo lịch trình gost
+ ${Green_font_prefix}11.${Font_color_suffix} Cấu hình chứng chỉ TLS tùy chỉnh
 ————————————" && echo
-read -e -p " 请输入数字 [1-9]:" num
+read -e -p " Vui lòng nhập số [1-9]:" num
 case "$num" in
 1)
   Install_ct
@@ -924,7 +923,7 @@ case "$num" in
   writeconf
   conflast
   systemctl restart gost
-  echo -e "配置已生效，当前配置如下"
+  echo -e "Cấu hình đã có hiệu lực, cấu hình hiện tại như sau"
   echo -e "--------------------------------------------------------"
   show_all_conf
   ;;
@@ -933,7 +932,7 @@ case "$num" in
   ;;
 9)
   show_all_conf
-  read -p "请输入你要删除的配置编号：" numdelete
+  read -p "Vui lòng nhập số cấu hình bạn muốn xóa:" numdelete
   if echo $numdelete | grep -q '[0-9]'; then
     sed -i "${numdelete}d" $raw_conf_path
     rm -rf /etc/gost/config.json
@@ -941,9 +940,9 @@ case "$num" in
     writeconf
     conflast
     systemctl restart gost
-    echo -e "配置已删除，服务已重启"
+    echo -e "Đã xóa cấu hình, khởi động lại dịch vụ"
   else
-    echo "请输入正确数字"
+    echo "Vui lòng nhập số chính xác"
   fi
   ;;
 10)
@@ -953,6 +952,6 @@ case "$num" in
   cert
   ;;
 *)
-  echo "请输入正确数字 [1-9]"
+  echo "xin vui lòng nhập số lượng chính xác xin vui lòng nhập số lượng chính xác [1-9]"
   ;;
 esac
