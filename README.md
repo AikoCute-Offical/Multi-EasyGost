@@ -13,7 +13,7 @@
 ## kịch bản
 
 * kịch bản khởi động
-  `wget --no-check-certificate -O gost.sh https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.sh && chmod +x gost.sh && ./gost.sh`  
+  `wget --no-check-certificate -O gost.sh https://raw.githubusercontent.com/AikoCute/Multi-EasyGost/aiko/gost.sh && chmod +x gost.sh && ./gost.sh`  
 * Để chạy lại tập lệnh, chỉ cần nhập`./gost.sh` Quay lại thôi 
 
 ## Chức năng
