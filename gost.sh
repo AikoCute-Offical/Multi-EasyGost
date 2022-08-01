@@ -61,7 +61,7 @@ function check_root() {
   [[ $EUID != 0 ]] && echo -e "${Error} Tài khoản không ROOT hiện tại (hoặc không có quyền ROOT) không thể tiếp tục hoạt động, vui lòng thay đổi tài khoản ROOT hoặc sử dụng ${Green_background_prefix}sudo su${Font_color_suffix} Lệnh này nhận được quyền ROOT tạm thời (bạn có thể được nhắc nhập mật khẩu của tài khoản hiện tại sau khi thực hiện)." && exit 1
 }
 function check_new_ver() {
-  ct_new_ver=$(wget --no-check-certificate -qO- -t2 -T3 https://api.github.com/repos/ginuerzh/gost/releases/latest | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g;s/v//g')
+  ct_new_ver=$(wget --no-check-certificate -qO- -t2 -T3 https://apigithub.aikocute.com/repos/ginuerzh/gost/releases/latest | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g;s/v//g')
   if [[ -z ${ct_new_ver} ]]; then
     ct_new_ver="2.11.1"
     echo -e "${Error} gost Không tải được phiên bản mới nhất, đang tải xuống v ${ct_new_ver} Phiên bản"
@@ -104,13 +104,13 @@ function Install_ct() {
     mkdir /etc/gost && wget --no-check-certificate https://gotunnel.oss-cn-shenzhen.aliyuncs.com/config.json && mv config.json /etc/gost && chmod -R 777 /etc/gost
   else
     rm -rf gost-linux-"$bit"-"$ct_new_ver".gz
-    wget --no-check-certificate https://github.com/ginuerzh/gost/releases/download/v"$ct_new_ver"/gost-linux-"$bit"-"$ct_new_ver".gz
+    wget --no-check-certificate https://github.aikocute.com/ginuerzh/gost/releases/download/v"$ct_new_ver"/gost-linux-"$bit"-"$ct_new_ver".gz
     gunzip gost-linux-"$bit"-"$ct_new_ver".gz
     mv gost-linux-"$bit"-"$ct_new_ver" gost
     mv gost /usr/bin/gost
     chmod -R 777 /usr/bin/gost
-    wget --no-check-certificate https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.service && chmod -R 777 gost.service && mv gost.service /usr/lib/systemd/system
-    mkdir /etc/gost && wget --no-check-certificate https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/config.json && mv config.json /etc/gost && chmod -R 777 /etc/gost
+    wget --no-check-certificate https://rawgithub.aikocute.com/KANIKIG/Multi-EasyGost/master/gost.service && chmod -R 777 gost.service && mv gost.service /usr/lib/systemd/system
+    mkdir /etc/gost && wget --no-check-certificate https://rawgithub.aikocute.com/KANIKIG/Multi-EasyGost/master/config.json && mv config.json /etc/gost && chmod -R 777 /etc/gost
   fi
 
   systemctl enable gost && systemctl restart gost
@@ -288,7 +288,7 @@ function read_d_ip() {
     echo -e "------------------------------------------------------------------"
     echo -e "Bạn có muốn đổi máy từ ${flag_b} IP hoặc tên miền mà lưu lượng đã nhận được chuyển tiếp đến?"
     echo -e "Lưu ý: IP có thể là IP công cộng của [máy từ xa / máy hiện tại] hoặc IP lặp cục bộ của máy này (tức là 127.0.0.1)"
-    echo -e "Việc điền địa chỉ IP cụ thể phụ thuộc vào IP mà dịch vụ nhận lưu lượng đang nghe (xem: https://github.com/KANIKIG/Multi-EasyGost)"
+    echo -e "Việc điền địa chỉ IP cụ thể phụ thuộc vào IP mà dịch vụ nhận lưu lượng đang nghe (xem: https://github.aikocute.com/KANIKIG/Multi-EasyGost)"
     if [[ ${is_cert} == [Yy] ]]; then
       echo -e "Lưu ý: Khi máy đích mở chứng chỉ TLS tùy chỉnh, hãy nhớ điền vào ${Red_font_prefix} tên miền ${Font_color_suffix}"
     fi
@@ -851,14 +851,14 @@ cron_restart() {
 }
 
 update_sh() {
-  ol_version=$(curl -L -s --connect-timeout 5 https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.sh | grep "shell_version=" | head -1 | awk -F '=|"' '{print $3}')
+  ol_version=$(curl -L -s --connect-timeout 5 https://rawgithub.aikocute.com/KANIKIG/Multi-EasyGost/master/gost.sh | grep "shell_version=" | head -1 | awk -F '=|"' '{print $3}')
   if [ -n "$ol_version" ]; then
     if [[ "$shell_version" != "$ol_version" ]]; then
       echo -e "Có phiên bản mới, có cập nhật không [Y/N]?"
       read -r update_confirm
       case $update_confirm in
       [yY][eE][sS] | [yY])
-        wget -N --no-check-certificate https://raw.githubusercontent.com/KANIKIG/Multi-EasyGost/master/gost.sh
+        wget -N --no-check-certificate https://rawgithub.aikocute.com/KANIKIG/Multi-EasyGost/master/gost.sh
         echo -e "hoàn thành cập nhật"
         exit 0
         ;;
@@ -880,7 +880,7 @@ echo && echo -e "                 tập lệnh cấu hình cài đặt một cú
         (2) Nhiều quy tắc chuyển tiếp có thể có hiệu lực cùng lúc mà không cần sự trợ giúp của các công cụ khác (chẳng hạn như màn hình)
         (3) Việc chuyển tiếp không bị lỗi sau khi máy khởi động lại
   Chức năng: (1) chuyển tiếp không mã hóa tcp + udp, (2) chuyển tiếp mã hóa máy chuyển tiếp, (3) máy hạ cánh được giải mã và chuyển tiếp được gắn vào đế
-  Tài liệu trợ giúp: https://github.com/KANIKIG/Multi-EasyGost
+  Tài liệu trợ giúp: https://github.aikocute.com/KANIKIG/Multi-EasyGost
  ${Green_font_prefix}1.${Font_color_suffix} cài đặt gost
  ${Green_font_prefix}2.${Font_color_suffix} cập nhật gost
  ${Green_font_prefix}3.${Font_color_suffix} gỡ cài đặt gost
